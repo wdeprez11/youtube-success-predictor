@@ -54,3 +54,30 @@ while len(video_ids)  < 100:
 
 print(f"Collected {len(video_ids)} video IDs")
 print(video_ids[:10])
+
+VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos"
+
+video_data = []
+
+for i in range(0, len(video_ids), 50):
+    batch_ids = video_ids[i:i+50]
+
+    params = {
+        "key": API_KEY,
+        "id": ",".join(batch_ids),
+        "part": "snippet,statistics,contentDetails",
+    }
+
+    response = requests.get(VIDEOS_URL, params=params)
+    data = response.json()
+
+    for item in data.get("items", []):
+        video_data.append(item)
+
+print(f"Fetched metadata for {len(video_data)} videos")
+
+sample = video_data[0]
+
+print(sample["snippet"]["title"])
+print(sample["statistics"]["viewCount"])
+print(sample["contentDetails"]["duration"])
