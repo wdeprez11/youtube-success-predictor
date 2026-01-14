@@ -1,6 +1,43 @@
 import os
 import requests
+import re
+import pandas as pd
 from dotenv import load_dotenv
+
+def parseDuration(video_time: str) -> int:
+    pattern = r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?'
+    match = re.match(pattern, video_time)
+
+    if not match:
+        return 0
+
+    hours = int(match.group(1) or 0)
+    minutes = int(match.group(2) or 0)
+    seconds = int(match.group(3) or 0)
+
+    return hours * 3600 + minutes * 60 + seconds
+
+def build_dataframe(video_data: list[dict]) -> pd.DataFrame:
+    rows = []
+
+    for item in video_data:
+        snippet = item.get("snippet", {})
+        stats = item.get("statistics", {})
+        content = item.get("contentDetails", {})
+
+        duration_seconds = parseDuration(content.get("duration", ""))
+
+        rows.append({
+            "title": snippet.get("title"),
+            "published_at": snippet.get("publishedAt"),
+            "duration_seconds": duration_seconds,
+            "view_count": int(stats.get("viewCount", 0)),
+            "like_count": int(stats.get("likeCount", 0)),
+            "comment_count": int(stats.get("commentCount", 0)),
+        })
+
+    df = pd.DataFrame(rows)
+    return df
 
 load_dotenv()
 API_KEY = os.getenv("YOUTUBE_API_KEY")
@@ -76,8 +113,15 @@ for i in range(0, len(video_ids), 50):
 
 print(f"Fetched metadata for {len(video_data)} videos")
 
-sample = video_data[0]
+df = build_dataframe(video_data)
+print(df)
 
-print(sample["snippet"]["title"])
-print(sample["statistics"]["viewCount"])
-print(sample["contentDetails"]["duration"])
+# sample = video_data[0]
+
+# print(sample["snippet"]["title"])
+# print(sample["statistics"]["viewCount"])
+# print(sample["contentDetails"]["duration"])
+
+# duration = parseDuration(sample["contentDetails"]["duration"])
+# print(f"The video has {duration} seconds")
+
