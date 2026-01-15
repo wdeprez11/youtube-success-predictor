@@ -114,7 +114,16 @@ for i in range(0, len(video_ids), 50):
 print(f"Fetched metadata for {len(video_data)} videos")
 
 df = build_dataframe(video_data)
-print(df)
+df = df[df["duration_seconds"] >= 60].reset_index(drop=True)
+threshold = df["view_count"].quantile(0.75)
+df["successful"] = (df["view_count"] >= threshold).astype(int)
+
+print("Success threshold (views):", int(threshold))
+print(df[["title", "view_count", "successful"]].head())
+
+# Save dataset
+df.to_csv("ryukahr_videos.csv", index=False)
+print("Saved dataset to ryukahr_videos.csv")
 
 # sample = video_data[0]
 
