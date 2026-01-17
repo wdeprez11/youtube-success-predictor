@@ -4,7 +4,7 @@ import re
 import pandas as pd
 from dotenv import load_dotenv
 
-def parseDuration(video_time: str) -> int:
+def parse_duration(video_time: str) -> int:
     pattern = r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?'
     match = re.match(pattern, video_time)
 
@@ -25,7 +25,7 @@ def build_dataframe(video_data: list[dict]) -> pd.DataFrame:
         stats = item.get("statistics", {})
         content = item.get("contentDetails", {})
 
-        duration_seconds = parseDuration(content.get("duration", ""))
+        duration_seconds = parse_duration(content.get("duration", ""))
 
         rows.append({
             "title": snippet.get("title"),
@@ -39,7 +39,7 @@ def build_dataframe(video_data: list[dict]) -> pd.DataFrame:
     df = pd.DataFrame(rows)
     return df
 
-if __name__ == "__main__":
+def run_pipeline() -> pd.DataFrame:
     load_dotenv()
     API_KEY = os.getenv("YOUTUBE_API_KEY")
 
@@ -139,4 +139,13 @@ if __name__ == "__main__":
     df["view_count"].plot(kind="hist", bins=36)
     plt.yscale("log")
     plt.title("View Count Distribution")
+    plt.savefig("view_count_distribution.png", dpi=150, bbox_inches="tight")
     plt.show()
+
+    print(f"Final dataset shape: {df.shape}")
+    print(f"Successful videos: {df['successful'].sum()} / {len(df)}")
+
+    return df
+    
+if __name__ == "__main__":
+    run_pipeline()
