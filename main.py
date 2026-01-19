@@ -1,11 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-from scripts.youtube_pipeline import (
-    build_dataframe,
-    parse_duration,
-    run_pipeline
-)
+from src.pipeline.youtube_pipeline import run_pipeline
  
 def main():
     load_dotenv()
