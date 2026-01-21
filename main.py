@@ -7,7 +7,7 @@ def main():
     load_dotenv()
     api_key = os.getenv("YOUTUBE_API_KEY")
 
-    df = run_pipeline()
+    df = run_pipeline(limit=200)
 
 if __name__ == "__main__":
     main()

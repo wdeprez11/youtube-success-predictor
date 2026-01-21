@@ -39,7 +39,16 @@ def build_dataframe(video_data: list[dict]) -> pd.DataFrame:
     df = pd.DataFrame(rows)
     return df
 
-def run_pipeline() -> pd.DataFrame:
+def run_pipeline(limit: int = 100) -> pd.DataFrame:
+    """
+    Features recent YouTube videos from a channel, builds a dataset,
+    and labels videos as successful based on view count percentile
+    
+    :param limit: The number of videos to iterate over
+    :type limit: int
+    :return: Returns a DataFrame of videos
+    :rtype: DataFrame
+    """
     load_dotenv()
     API_KEY = os.getenv("YOUTUBE_API_KEY")
 
@@ -67,12 +76,12 @@ def run_pipeline() -> pd.DataFrame:
     video_ids = []
     next_page_token = None
 
-    while len(video_ids)  < 100:
+    while len(video_ids)  < limit:
         params = {
             "key": API_KEY,
             "playlistId": uploads_playlist_id,
             "part": "contentDetails",
-            "maxResults": 50,
+            "maxResults": limit,
         }
 
         if next_page_token:
@@ -148,4 +157,4 @@ def run_pipeline() -> pd.DataFrame:
     return df
     
 if __name__ == "__main__":
-    run_pipeline()
+    run_pipeline(limit=100)
