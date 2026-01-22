@@ -27,9 +27,21 @@ def build_dataframe(video_data: list[dict]) -> pd.DataFrame:
 
         duration_seconds = parse_duration(content.get("duration", ""))
 
+        published = snippet.get("publishedAt")
+        if published:
+            dt = pd.to_datetime(published)
+            hour = dt.hour
+            weekday = dt.weekday()
+        else:
+            hour = None
+            weekday = None
+            
+
         rows.append({
             "title": snippet.get("title"),
-            "published_at": snippet.get("publishedAt"),
+            "published_at": published,
+            "publish_hour": hour,
+            "publish_weekday": weekday,
             "duration_seconds": duration_seconds,
             "view_count": int(stats.get("viewCount", 0)),
             "like_count": int(stats.get("likeCount", 0)),
