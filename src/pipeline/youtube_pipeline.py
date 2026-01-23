@@ -36,9 +36,19 @@ def build_dataframe(video_data: list[dict]) -> pd.DataFrame:
             hour = None
             weekday = None
             
+        title = snippet.get("title", "")
+
+        title_length = len(title)
+        num_words = len(title.split())
+        has_exclamation = int("!" in title)
+        has_question = int("?" in title)
 
         rows.append({
             "title": snippet.get("title"),
+            "title_length": title_length,
+            "title_word_count": num_words,
+            "title_has_exclamation": has_exclamation,
+            "title_has_question": has_question,
             "published_at": published,
             "publish_hour": hour,
             "publish_weekday": weekday,
