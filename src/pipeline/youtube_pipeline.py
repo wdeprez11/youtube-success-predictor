@@ -43,8 +43,12 @@ def build_dataframe(video_data: list[dict]) -> pd.DataFrame:
         has_exclamation = int("!" in title)
         has_question = int("?" in title)
 
+        thumbnails = snippet.get("thumbnails", {})
+        high_res = thumbnails.get("high") or thumbnails.get("medium") or thumbnails.get("default")
+        thumbnail_url = high_res.get("url") if high_res else None
+
         rows.append({
-            "title": snippet.get("title"),
+            "title": title,
             "title_length": title_length,
             "title_word_count": num_words,
             "title_has_exclamation": has_exclamation,
@@ -56,6 +60,7 @@ def build_dataframe(video_data: list[dict]) -> pd.DataFrame:
             "view_count": int(stats.get("viewCount", 0)),
             "like_count": int(stats.get("likeCount", 0)),
             "comment_count": int(stats.get("commentCount", 0)),
+            "thumbnail_url": thumbnail_url,
         })
 
     df = pd.DataFrame(rows)
@@ -103,7 +108,7 @@ def run_pipeline(limit: int = 100) -> pd.DataFrame:
             "key": API_KEY,
             "playlistId": uploads_playlist_id,
             "part": "contentDetails",
-            "maxResults": limit,
+            "maxResults": min(50, limit - len(video_ids)),
         }
 
         if next_page_token:
